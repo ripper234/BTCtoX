@@ -1,6 +1,7 @@
+@import java.math.BigDecimal;
 @extends(main)
 @set(title = "Convert BTC to other currencies")
-@args Map rates
+@args BigDecimal btcRate, Map rates
 
 <div class="container">
 
@@ -17,8 +18,8 @@
         function update() {
             var amount = $("#amount").val();
             var toRate = $("#to").val();
-
-            $(".result").text(amount * toRate);
+            var btcRate = @btcRate.toString();
+            $(".result").text(amount / toRate / btcRate);
         }
 
         $("#to").change(update);

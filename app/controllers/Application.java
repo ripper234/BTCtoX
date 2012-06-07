@@ -18,12 +18,12 @@ public class Application extends Controller {
 
     public static void tobtc() throws ExecutionException, InterruptedException {
         F.Promise<Map<String, BigDecimal>> ratesPromise = getRates();
-        F.Promise<BigDecimal> btcToUsdPromise = getBtcRate();
+        F.Promise<BigDecimal> btcRatePromise = getBtcRate();
 
         Map<String, BigDecimal> rates = ratesPromise.get();
-        BigDecimal btcToUsd = btcToUsdPromise.get();
+        BigDecimal btcRate = btcRatePromise.get();
 
-        render(rates, btcToUsd);
+        render(rates, btcRate);
     }
 
     public static void frombtc() {
