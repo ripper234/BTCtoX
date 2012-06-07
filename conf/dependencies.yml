@@ -2,3 +2,5 @@
 
 require:
     - play
+    - play -> rythm 1.0.0-RC5
+    - play -> less 0.9.1

@@ -13,4 +13,11 @@ public class Application extends Controller {
         render();
     }
 
+    public static void tobtc() {
+        render();
+    }
+    
+    public static void frombtc() {
+        render();
+    }
 }
