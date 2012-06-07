@@ -1,4 +1,29 @@
-#{extends 'main.html' /}
-#{set title:'Home' /}
+@extends(main)
+@set(title = "Convert BTC to other currencies")
+@args Map rates
 
-<p>Convert <input name="amount"> DROPDOWN </p>
+<div class="container">
+
+    <p><input id="amount" class='amount' name="amount" placeholder='0.00' autofocus >
+        <select id="to" name="to" class="currency" >
+            @for(Map.Entry rate : rates.entrySet()) {
+                <option value="@rate.getValue()">@rate.getKey()</option>
+            }
+        </select>
+        = <span class="result">0.00</span> BTC
+    </p>
+
+    <script type="text/javascript">
+        function update() {
+            var amount = $("#amount").val();
+            var toRate = $("#to").val();
+
+            $(".result").text(amount * toRate);
+        }
+
+        $("#to").change(update);
+        $("#amount")
+            .keydown(function(){setTimeout(update, 0)});
+
+    </script>
+</div>
