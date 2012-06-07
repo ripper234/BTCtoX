@@ -1,4 +1,28 @@
 @extends(main)
-@set("title" = "BTCtoX")
+@set(title = "Home")
 
-#{welcome /}
+<div class="container">
+
+  <!-- Main hero unit for a primary marketing message or call to action -->
+  <div class="hero-unit">
+    <h1>Bitcoin Currency Converter</h1>
+    <p>BTCtoX is a simple currency converter between <a href="http://bitcoin.org">Bitcoin</a> and other currencies.</p>
+  </div>
+
+  <!-- Example row of columns -->
+  <div class="row">
+    <div class="span4">
+        <a href="@url(frombtc())" class="btn btn-primary btn-large">Convert BTC to other currencies</a>
+    </div>
+    <div class="span4">
+        <a href="@url(tobtc())" class="btn btn-primary btn-large">Convert other currencies to BTC</a>
+   </div>
+  </div>
+
+  <hr>
+
+  <footer>
+    <p><a href="https://github.com/ripper234/BTCtoX">Find us on Github</a></p>
+  </footer>
+
+</div> <!-- /container -->
