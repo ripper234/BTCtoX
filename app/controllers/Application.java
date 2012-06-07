@@ -1,16 +1,19 @@
 package controllers;
 
-import play.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import play.libs.F;
+import play.libs.WS;
 import play.mvc.*;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-import models.*;
-
 public class Application extends Controller {
+
+    private final static boolean USE_MOCKS = false;
 
     public static void index() {
         render();
@@ -30,21 +33,50 @@ public class Application extends Controller {
         render();
     }
 
-    private static F.Promise<BigDecimal> getBtcRate() {
-        F.Promise<BigDecimal> Promise = new F.Promise<BigDecimal>();
-        Promise.invoke(new BigDecimal(5));
+    private static F.Promise<BigDecimal> getBtcRate() throws ExecutionException, InterruptedException {
+        F.Promise<BigDecimal> promise = new F.Promise<BigDecimal>();
+
+        if (USE_MOCKS) {
+            promise.invoke(new BigDecimal(5));
+        } else {
+            F.Promise<WS.HttpResponse> async = WS.url("https://mtgox.com/api/1/BTCUSD/ticker").getAsync();
+
+            // TODO - async it
+            JsonObject json = async.get().getJson().getAsJsonObject();
+
+            JsonObject jsonObje= json.get("return").getAsJsonObject().get("avg").getAsJsonObject();
+            BigDecimal rate = jsonObje.get("value").getAsBigDecimal();
+            promise.invoke(rate);
+        }
+
         
-        return Promise;
+        return promise;
     }
 
-    private static F.Promise<Map<String, BigDecimal>> getRates() {
+    private static F.Promise<Map<String, BigDecimal>> getRates() throws ExecutionException, InterruptedException {
         HashMap<String, BigDecimal> rates = new HashMap<String, BigDecimal>();
-        rates.put("USD", new BigDecimal(1));
-        rates.put("ILS", new BigDecimal(4));
-        
-        F.Promise<Map<String, BigDecimal>> promise = new F.Promise<Map<String, BigDecimal>>();
-        promise.invoke(rates);
-        return promise;
+        if (USE_MOCKS) {
+            rates.put("USD", new BigDecimal(1));
+            rates.put("ILS", new BigDecimal(4));
+
+            F.Promise<Map<String, BigDecimal>> promise = new F.Promise<Map<String, BigDecimal>>();
+            promise.invoke(rates);
+            return promise;
+        } else {
+            F.Promise<WS.HttpResponse> response = WS.url("http://openexchangerates.org/latest.json").getAsync();
+
+            // TODO - asynch it - http://stackoverflow.com/questions/10941206/building-complex-promises-in-play
+            WS.HttpResponse httpResponse = response.get();
+            JsonElement json = httpResponse.getJson();
+
+            for (Map.Entry<String, JsonElement> entry : ((JsonObject) httpResponse.getJson()).getAsJsonObject("rates").entrySet()) {
+                rates.put(entry.getKey(), entry.getValue().getAsBigDecimal());
+            }
+
+            F.Promise<Map<String, BigDecimal>> promise = new F.Promise<Map<String, BigDecimal>>();
+            promise.invoke(rates);
+            return promise;
+        }
     }
 
 }
