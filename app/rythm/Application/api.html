@@ -1,8 +1,20 @@
 @extends(main)
 @set(title = "API")
+@import java.math.BigDecimal;
+@args String baseUrl
 
 <div class="container">
+    <h1>JSON API</h1>
+
     <p>We have a simple JSON API, composed of two verbs:</p>
 
+    <ul>
+        <h2>@fullUrl(API.tobtc)</h2>
+        <p>This accepts two required parameters, currency code, and amount.</p>
+        <p>The currency code should be exist on <a href="http://openexchangerates.org/latest.json">this list of codes</a>.</p>
+        <br/>
+        <p>Example: <a href=''>@fullUrl(API.tobtc)?amount=10&amp;currencyCode=ILS</a></p>
 
+        @(API.tobtc(new BigDecimal(10), "ILS"))
+    </ul>
 </div>

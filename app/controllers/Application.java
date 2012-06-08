@@ -1,6 +1,5 @@
 package controllers;
 
-import play.Play;
 import play.libs.F;
 import play.mvc.Controller;
 
@@ -15,8 +14,7 @@ public class Application extends Controller {
     }
 
     public static void api() {
-        String baseUrl = (String)Play.configuration.get("application.baseUrl");
-        render(baseUrl);
+        render();
     }
 
     public static void tobtc() throws ExecutionException, InterruptedException {
