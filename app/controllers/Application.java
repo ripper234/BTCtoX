@@ -2,7 +2,6 @@ package controllers;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import play.libs.F;
 import play.libs.WS;
 import play.mvc.*;
@@ -29,8 +28,14 @@ public class Application extends Controller {
         render(rates, btcRate);
     }
 
-    public static void frombtc() {
-        render();
+    public static void frombtc() throws ExecutionException, InterruptedException {
+        F.Promise<Map<String, BigDecimal>> ratesPromise = getRates();
+        F.Promise<BigDecimal> btcRatePromise = getBtcRate();
+
+        Map<String, BigDecimal> rates = ratesPromise.get();
+        BigDecimal btcRate = btcRatePromise.get();
+
+        render(rates, btcRate);
     }
 
     private static F.Promise<BigDecimal> getBtcRate() throws ExecutionException, InterruptedException {

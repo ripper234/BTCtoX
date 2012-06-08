@@ -6,8 +6,8 @@
 
 <div class="container">
 
-    <p><input id="amount" class='amount' name="amount" placeholder='0.00' autofocus >
-        <select id="to" name="to" class="currency" >
+    <p><input id="x-amount" class='amount' placeholder='0.00' autofocus >
+        <select id="from" class="currency" >
             @for(Map.Entry rate : rates.entrySet()) {
                 <option value="@rate.getValue()">@rate.getKey() ($@(new BigDecimal(1).divide((BigDecimal)rate.getValue(), 3, RoundingMode.HALF_UP)))</option>
             }
@@ -18,14 +18,14 @@
     <p>1 BTC = @btcRate.toString() USD</p>
     <script type="text/javascript">
         function update() {
-            var amount = $("#amount").val();
+            var xAmount = $("#x-amount").val();
             var toRate = $("#to").val();
             var btcRate = @(btcRate.toString());
-            $(".result").text((amount / toRate / btcRate).toFixed(3));
+            $(".result").text((xAmount / toRate / btcRate).toFixed(3));
         }
 
         $("#to").change(update);
-        $("#amount")
+        $("#x-amount")
             .keydown(function(){setTimeout(update, 0)});
 
     </script>

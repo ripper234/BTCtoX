@@ -1,0 +1,32 @@
+@import java.math.BigDecimal;
+@import java.math.RoundingMode;
+@extends(main)
+@set(title = "Convert BTC to other currencies")
+@args BigDecimal btcRate, Map rates
+
+<div class="container">
+
+    <p><input id="btc-amount" class='amount' placeholder='0.00' autofocus > BTC to
+        <select id="to" class="currency" >
+            @for(Map.Entry rate : rates.entrySet()) {
+                <option value="@rate.getValue()">@rate.getKey() ($@(new BigDecimal(1).divide((BigDecimal)rate.getValue(), 3, RoundingMode.HALF_UP)))</option>
+            }
+        </select>
+        = <span class="result">0.00</span> BTC
+    </p>
+
+    <p>1 BTC = @btcRate.toString() USD</p>
+    <script type="text/javascript">
+        function update() {
+            var btcAmount = $("#btc-amount").val();
+            var toRate = $("#to").val();
+            var btcRate = @(btcRate.toString());
+            $(".result").text((btcAmount * btcRate * toRate ).toFixed(3));
+        }
+
+        $("#to").change(update);
+        $("#btc-amount")
+            .keydown(function(){setTimeout(update, 0)});
+
+    </script>
+</div>
