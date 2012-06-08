@@ -4,8 +4,8 @@
 
 # Home page
 GET     /                                       Application.index
-GET     /tobtc                                  Application.tobtc
-GET     /frombtc                                Application.frombtc
+GET     /api/{action}                           API.{action}
+GET     /{action}                               Application.{action}
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
