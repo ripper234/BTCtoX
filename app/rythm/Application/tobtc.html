@@ -19,12 +19,12 @@
     <script type="text/javascript">
         function update() {
             var xAmount = $("#x-amount").val();
-            var toRate = $("#to").val();
+            var fromRate = $("#from").val();
             var btcRate = @(btcRate.toString());
-            $(".result").text((xAmount / toRate / btcRate).toFixed(3));
+            $(".result").text((xAmount / fromRate / btcRate).toFixed(3));
         }
 
-        $("#to").change(update);
+        $("#from").change(update);
         $("#x-amount")
             .keydown(function(){setTimeout(update, 0)});
 

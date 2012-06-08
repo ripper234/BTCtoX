@@ -4,6 +4,8 @@
 
 # Home page
 GET     /                                       Application.index
+GET     /tobtc                                  Application.tobtc
+GET     /frombtc                                Application.frombtc
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
@@ -13,3 +15,4 @@ GET     /public/                                staticDir:public
 
 # Catch all
 *       /{controller}/{action}                  {controller}.{action}
+
