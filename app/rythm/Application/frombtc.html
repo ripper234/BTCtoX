@@ -24,9 +24,20 @@
             $(".result").text((btcAmount * btcRate * toRate ).toFixed(3));
         }
 
-        $("#to").change(update);
+        $("#to").change(function (){
+            update()
+            window.location.hash = /\\w{3}/.exec($.trim($(this).find(":selected").text()))[0];
+        });
         $("#btc-amount")
             .keydown(function(){setTimeout(update, 0)});
 
+        // Select currency by hash
+        (function(){
+            $("#to option").each(function(i, elem){
+                if (("#" + $(elem).text()).indexOf(window.location.hash) === 0) {
+                    $(elem).attr('selected', 'selected');
+                }
+            });
+        })();
     </script>
 </div>

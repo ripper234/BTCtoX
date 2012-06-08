@@ -30,12 +30,11 @@
         });
         $("#x-amount").keydown(function(){setTimeout(update, 0)});
 
-        TODO - not working.
         // Select currency by hash
         (function(){
             $("#from option").each(function(i, elem){
                 if (("#" + $(elem).text()).indexOf(window.location.hash) === 0) {
-                    $(elem).select();
+                    $(elem).attr('selected', 'selected');
                 }
             });
         })();
