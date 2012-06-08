@@ -3,11 +3,4 @@
 require:
     - play
     - play -> less 0.9.1
-#    - play -> rythm 1.0.0-RC5
-    - provided -> SNAPSHOT
-repositories:
-    - provided:
-        type:       local
-        artifact:   "${application.path}/jar/play-rythm.jar"
-        contains:
-            - SNAPSHOT
+    - play -> rythm 1.0.0-RC5
