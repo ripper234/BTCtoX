@@ -25,11 +25,10 @@
         }
 
         $("#to").change(function (){
-            update()
+            update();
             window.location.hash = /\\w{3}/.exec($.trim($(this).find(":selected").text()))[0];
         });
-        $("#btc-amount")
-            .keydown(function(){setTimeout(update, 0)});
+        $("#btc-amount").keydown(function(){setTimeout(update, 0)});
 
         // Select currency by hash
         (function(){
