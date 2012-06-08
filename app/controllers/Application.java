@@ -2,6 +2,7 @@ package controllers;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import play.jobs.Job;
 import play.libs.F;
 import play.libs.WS;
 import play.mvc.*;
@@ -22,8 +23,9 @@ public class Application extends Controller {
         F.Promise<Map<String, BigDecimal>> ratesPromise = getRates();
         F.Promise<BigDecimal> btcRatePromise = getBtcRate();
 
-        Map<String, BigDecimal> rates = ratesPromise.get();
-        BigDecimal btcRate = btcRatePromise.get();
+        F.Tuple<Map<String, BigDecimal>, BigDecimal> result = await(F.Promise.wait2(ratesPromise, btcRatePromise));
+        Map<String, BigDecimal> rates = result._1;
+        BigDecimal btcRate = result._2;
 
         render(rates, btcRate);
     }
@@ -32,56 +34,51 @@ public class Application extends Controller {
         F.Promise<Map<String, BigDecimal>> ratesPromise = getRates();
         F.Promise<BigDecimal> btcRatePromise = getBtcRate();
 
-        Map<String, BigDecimal> rates = ratesPromise.get();
-        BigDecimal btcRate = btcRatePromise.get();
+        F.Tuple<Map<String, BigDecimal>, BigDecimal> result = await(F.Promise.wait2(ratesPromise, btcRatePromise));
+        Map<String, BigDecimal> rates = result._1;
+        BigDecimal btcRate = result._2;
 
         render(rates, btcRate);
     }
 
     private static F.Promise<BigDecimal> getBtcRate() throws ExecutionException, InterruptedException {
-        F.Promise<BigDecimal> promise = new F.Promise<BigDecimal>();
+        return new Job<BigDecimal>(){
+            @Override
+            public BigDecimal doJobWithResult() throws Exception {
+                if (USE_MOCKS) {
+                    return new BigDecimal(5);
+                }
 
-        if (USE_MOCKS) {
-            promise.invoke(new BigDecimal(5));
-        } else {
-            F.Promise<WS.HttpResponse> async = WS.url("https://mtgox.com/api/1/BTCUSD/ticker").getAsync();
+                F.Promise<WS.HttpResponse> async = WS.url("https://mtgox.com/api/1/BTCUSD/ticker").getAsync();
 
-            // TODO - async it
-            JsonObject json = async.get().getJson().getAsJsonObject();
-
-            JsonObject jsonObje= json.get("return").getAsJsonObject().get("avg").getAsJsonObject();
-            BigDecimal rate = jsonObje.get("value").getAsBigDecimal();
-            promise.invoke(rate);
-        }
-
-        
-        return promise;
+                JsonObject json = async.get().getJson().getAsJsonObject();
+                JsonObject jsonObje= json.get("return").getAsJsonObject().get("avg").getAsJsonObject();
+                return jsonObje.get("value").getAsBigDecimal();
+            }
+        }.now();
     }
 
     private static F.Promise<Map<String, BigDecimal>> getRates() throws ExecutionException, InterruptedException {
-        HashMap<String, BigDecimal> rates = new HashMap<String, BigDecimal>();
-        if (USE_MOCKS) {
-            rates.put("USD", new BigDecimal(1));
-            rates.put("ILS", new BigDecimal(4));
+        return new Job<Map<String, BigDecimal>>(){
+            @Override
+            public Map<String, BigDecimal> doJobWithResult() throws Exception {
+                HashMap<String, BigDecimal> rates = new HashMap<String, BigDecimal>();
+                if (USE_MOCKS) {
+                    rates.put("USD", new BigDecimal(1));
+                    rates.put("ILS", new BigDecimal(4));
 
-            F.Promise<Map<String, BigDecimal>> promise = new F.Promise<Map<String, BigDecimal>>();
-            promise.invoke(rates);
-            return promise;
-        } else {
-            F.Promise<WS.HttpResponse> response = WS.url("http://openexchangerates.org/latest.json").getAsync();
+                    return rates;
+                }
+                F.Promise<WS.HttpResponse> response = WS.url("http://openexchangerates.org/latest.json").getAsync();
 
-            // TODO - asynch it - http://stackoverflow.com/questions/10941206/building-complex-promises-in-play
-            WS.HttpResponse httpResponse = response.get();
-            JsonElement json = httpResponse.getJson();
+                WS.HttpResponse httpResponse = response.get();
+                for (Map.Entry<String, JsonElement> entry : ((JsonObject) httpResponse.getJson()).getAsJsonObject("rates").entrySet()) {
+                    rates.put(entry.getKey(), entry.getValue().getAsBigDecimal());
+                }
 
-            for (Map.Entry<String, JsonElement> entry : ((JsonObject) httpResponse.getJson()).getAsJsonObject("rates").entrySet()) {
-                rates.put(entry.getKey(), entry.getValue().getAsBigDecimal());
+                return rates;
             }
-
-            F.Promise<Map<String, BigDecimal>> promise = new F.Promise<Map<String, BigDecimal>>();
-            promise.invoke(rates);
-            return promise;
-        }
+        }.now();
     }
 
 
