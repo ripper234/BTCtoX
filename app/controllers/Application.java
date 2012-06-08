@@ -84,4 +84,10 @@ public class Application extends Controller {
         }
     }
 
+
+    public static void test() {
+        String staticUrl = play.mvc.Router.reverseWithCheck("p",
+                play.Play.getVirtualFile("/public/stylesheets/main.less"), false);
+        renderText("the reverse route is " + staticUrl);
+    }
 }
