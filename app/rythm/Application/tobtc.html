@@ -26,10 +26,18 @@
 
         $("#from").change(function(){
             update();
-            window.location.ash = $(this).val();
+            window.location.hash = /\\w{3}/.exec($.trim($(this).find(":selected").text()))[0];
         });
-        $("#x-amount")
-            .keydown(function(){setTimeout(update, 0)});
+        $("#x-amount").keydown(function(){setTimeout(update, 0)});
 
+        TODO - not working.
+        // Select currency by hash
+        (function(){
+            $("#from option").each(function(i, elem){
+                if (("#" + $(elem).text()).indexOf(window.location.hash) === 0) {
+                    $(elem).select();
+                }
+            });
+        })();
     </script>
 </div>
