@@ -51,7 +51,6 @@
             }
             $("#to option").each(function(i, elem){
                 if (("#" + $(elem).text()).indexOf(window.location.hash) === 0) {
-                    alert("A");
                     $(elem).attr('selected', 'selected');
                 }
             });
