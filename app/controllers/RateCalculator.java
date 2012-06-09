@@ -2,12 +2,13 @@ package controllers;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.btctox.MapUtil;
 import play.jobs.Job;
 import play.libs.F;
 import play.libs.WS;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -21,7 +22,7 @@ public class RateCalculator {
         F.Promise<Map<String, BigDecimal>> ratesPromise = new Job<Map<String, BigDecimal>>() {
             @Override
             public Map<String, BigDecimal> doJobWithResult() throws Exception {
-                HashMap<String, BigDecimal> rates = new HashMap<String, BigDecimal>();
+                Map<String, BigDecimal> rates = new LinkedHashMap<String, BigDecimal>();
                 if (USE_MOCKS) {
                     rates.put("USD", new BigDecimal(1));
                     rates.put("ILS", new BigDecimal(4));
@@ -35,6 +36,7 @@ public class RateCalculator {
                     rates.put(entry.getKey(), entry.getValue().getAsBigDecimal());
                 }
 
+                rates = MapUtil.sortByKey(rates);
                 return rates;
             }
         }.now();
