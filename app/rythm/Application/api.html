@@ -9,12 +9,12 @@
     <p>We have a simple JSON API, composed of two verbs:</p>
 
     <ul class="nav nav-pills nav-stacked" id="tab">
-        <li class="active"><a href="#tobtc">@fullUrl(API.tobtc)</a></li>
-        <li><a href="#frombtc">@fullUrl(API.frombtc)</a></li>
-        <li><a href="#notes">Notes</a></li>
+        <li><a data-toggle="tab" href="#tobtc" class="active">@fullUrl(API.tobtc)</a></li>
+        <li><a data-toggle="tab" href="#frombtc" >@fullUrl(API.frombtc)</a></li>
+        <li><a data-toggle="tab" href="#notes">Notes</a></li>
     </ul>
     
-    <div class="tab-content2">
+    <div class="tab-content">
       <div class="tab-pane" id="tobtc">
           <p>This accepts two required parameters, currency code, and amount.</p>
           <br/>
@@ -23,7 +23,7 @@
       <div class="tab-pane" id="frombtc">
           <p>This accepts two required parameters, currency code, and amount.</p>
           <br/>
-          <p>Example: <a href='@fullUrl(API.tobtc(new BigDecimal(10), "ILS"))'>@fullUrl(API.tobtc(new BigDecimal(10), "ILS"))</a></p>
+          <p>Example: <a href='@fullUrl(API.frombtc(new BigDecimal(10), "ILS"))'>@fullUrl(API.frombtc(new BigDecimal(10), "ILS"))</a></p>
       </div>
       <div class="tab-pane" id="notes">
           <ul>
