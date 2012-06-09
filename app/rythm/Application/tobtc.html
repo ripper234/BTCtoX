@@ -32,6 +32,9 @@
 
         // Select currency by hash
         (function(){
+            if (!window.location.hash) {
+                return;
+            }
             $("#from option").each(function(i, elem){
                 if (("#" + $(elem).text()).indexOf(window.location.hash) === 0) {
                     $(elem).attr('selected', 'selected');
