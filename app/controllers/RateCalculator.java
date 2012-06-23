@@ -5,6 +5,8 @@ import com.google.gson.JsonObject;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.btctox.MapUtil;
+import org.joda.time.Period;
+import org.playutils.CacheUtils;
 import play.jobs.Job;
 import play.libs.F;
 import play.libs.WS;
@@ -12,6 +14,7 @@ import play.libs.WS;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 public class RateCalculator {
@@ -65,15 +68,27 @@ public class RateCalculator {
 
     private static F.Promise<BigDecimal> getBTCRateWeighted(final WeightPeriod period) {
         Job<BigDecimal> btc = new Job<BigDecimal>() {
+            @SuppressWarnings("unchecked")
             @Override
             public BigDecimal doJobWithResult() throws Exception {
                 try {
                     if (USE_MOCKS) {
                         return new BigDecimal(4);
                     }
-                    F.Promise<WS.HttpResponse> response = WS.url(BITCOIN_CHARTS_WEIGHTED_PRICE_API).getAsync();
-                    WS.HttpResponse httpResponse = response.get();
-                    JsonObject btcRates = (JsonObject) ((JsonObject) httpResponse.getJson()).get("USD");
+
+                    // BitcoinCharts only allows us to ping their site every 15 minutes.
+                    // Let's cache the results for 16 minutes.
+                    JsonObject rates = CacheUtils.getCachedOrFresh("bitcoinChartsRates", Period.minutes(16),
+                            new Callable<JsonObject>() {
+                                @Override
+                                public JsonObject call() throws Exception {
+                                    F.Promise<WS.HttpResponse> response = WS.url(BITCOIN_CHARTS_WEIGHTED_PRICE_API).getAsync();
+                                    WS.HttpResponse httpResponse = response.get();
+                                    return (JsonObject) httpResponse.getJson();
+                                }
+                            });
+
+                    JsonObject btcRates = (JsonObject) (rates.get("USD"));
                     JsonElement jsonElement = btcRates.get(period.code);
                     return jsonElement.getAsBigDecimal();
                 } catch (Exception e) {
@@ -81,6 +96,7 @@ public class RateCalculator {
                     return null;
                 }
             }
+
         };
         return btc.now();
     }
@@ -102,3 +118,4 @@ public class RateCalculator {
         }.now();
     }
 }
+
