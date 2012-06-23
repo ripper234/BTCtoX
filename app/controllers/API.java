@@ -1,5 +1,7 @@
 package controllers;
 
+import models.APIResult;
+import models.WeightPeriod;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import play.libs.F;

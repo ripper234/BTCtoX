@@ -1,6 +1,5 @@
 package org.playutils;
 
-import controllers.ItemWithExpirationDate;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import play.cache.Cache;

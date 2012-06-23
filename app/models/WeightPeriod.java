@@ -1,4 +1,4 @@
-package controllers;
+package models;
 
 public enum WeightPeriod {
     OneDay("24h"),

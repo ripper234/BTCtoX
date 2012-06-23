@@ -2,6 +2,8 @@ package controllers;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import models.BTCWeightedRates;
+import models.WeightPeriod;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.btctox.MapUtil;
@@ -78,19 +80,17 @@ public class RateCalculator {
 
                     // BitcoinCharts only allows us to ping their site every 15 minutes.
                     // Let's cache the results for 16 minutes.
-                    JsonObject rates = CacheUtils.getCachedOrFresh("bitcoinChartsRates", Period.minutes(16),
-                            new Callable<JsonObject>() {
+                    BTCWeightedRates rates = CacheUtils.getCachedOrFresh("bitcoinChartsRates", Period.minutes(16),
+                            new Callable<BTCWeightedRates>() {
                                 @Override
-                                public JsonObject call() throws Exception {
+                                public BTCWeightedRates call() throws Exception {
                                     F.Promise<WS.HttpResponse> response = WS.url(BITCOIN_CHARTS_WEIGHTED_PRICE_API).getAsync();
                                     WS.HttpResponse httpResponse = response.get();
-                                    return (JsonObject) httpResponse.getJson();
+                                    return parseBTCWeighted(((JsonObject)(((JsonObject) httpResponse.getJson()).get("USD"))));
                                 }
                             });
 
-                    JsonObject btcRates = (JsonObject) (rates.get("USD"));
-                    JsonElement jsonElement = btcRates.get(period.code);
-                    return jsonElement.getAsBigDecimal();
+                    return rates.get(period);
                 } catch (Exception e) {
                     logger.info("Exception getting weighted BTC rate: ", e);
                     return null;
@@ -99,6 +99,14 @@ public class RateCalculator {
 
         };
         return btc.now();
+    }
+
+    private static BTCWeightedRates parseBTCWeighted(JsonObject json) {
+        BTCWeightedRates result = new BTCWeightedRates();
+        for (WeightPeriod period : WeightPeriod.values()) {
+            result.set(period, json.get(period.code).getAsBigDecimal());
+        }
+        return result;
     }
 
     private static F.Promise<BigDecimal> getBtcRate() throws ExecutionException, InterruptedException {

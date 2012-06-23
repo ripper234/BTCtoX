@@ -4,3 +4,5 @@ require:
     - play -> play 1.2.4
     - play -> less 0.9.1
     - play -> rythm 1.0.0-RC5
+
+    - com.google.guava -> guava 12.0

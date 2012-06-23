@@ -1,8 +1,10 @@
-package controllers;
+package org.playutils;
 
 import org.joda.time.DateTime;
 
-public class ItemWithExpirationDate<T> {
+import java.io.Serializable;
+
+public class ItemWithExpirationDate<T> implements Serializable {
     public ItemWithExpirationDate(){}
     public ItemWithExpirationDate(T item, DateTime expiration) {
         this.item = item;
