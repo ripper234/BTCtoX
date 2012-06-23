@@ -4,11 +4,10 @@
 
 # Home page
 GET     /                                       Application.index
+GET     /favicon.ico                            staticFile:/public/images/favicon.png
 GET     /api/{action}                           API.{action}
 GET     /{action}                               Application.{action}
 
-# Ignore favicon requests
-GET     /favicon.ico                            404
 
 # Map static resources from the /app/public folder to the /public path
 GET     /public/                                staticDir:public
