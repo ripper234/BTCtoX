@@ -11,6 +11,8 @@
     <ul class="nav nav-pills nav-stacked" id="tab">
         <li><a data-toggle="tab" href="#tobtc" class="active">@fullUrl(API.tobtc)</a></li>
         <li><a data-toggle="tab" href="#frombtc" >@fullUrl(API.frombtc)</a></li>
+        <li><a data-toggle="tab" href="#tobtcWeighted" class="active">@fullUrl(API.tobtcWeighted)</a></li>
+        <li><a data-toggle="tab" href="#frombtcWeighted" >@fullUrl(API.frombtcWeighted)</a></li>
         <li><a data-toggle="tab" href="#notes">Notes</a></li>
     </ul>
     
@@ -25,10 +27,22 @@
           <br/>
           <p>Example: <a href='@fullUrl(API.frombtc(new BigDecimal(10), "ILS"))'>@fullUrl(API.frombtc(new BigDecimal(10), "ILS"))</a></p>
       </div>
-      <div class="tab-pane" id="notes">
+        <div class="tab-pane" id="tobtcWeighted">
+            <p>Like <em>tobtc</em>, only it returns a weighted average price, according to the last 1, 7 or 30 days.</p>
+            <p>This accepts three required parameters, currency code, amount and period.</p>
+            <br/>
+            <p>Example: <a href='@fullUrl(API.tobtcWeighted(new BigDecimal(10), "ILS", "7d"))'>@fullUrl(API.tobtcWeighted(new BigDecimal(10), "ILS", "7d"))</a></p>
+        </div>
+        <div class="tab-pane" id="frombtcWeighted">
+            <p>Like <em>frombtc</em>, only it returns a weighted average price, according to the last 1, 7 or 30 days.</p>
+            <p>This accepts three required parameters, currency code, amount and period.</p>
+            <br/>
+            <p>Example: <a href='@fullUrl(API.frombtcWeighted(new BigDecimal(10), "ILS", "7d"))'>@fullUrl(API.frombtcWeighted(new BigDecimal(10), "ILS", "7d"))</a></p>
+        </div>      <div class="tab-pane" id="notes">
           <ul>
               <li>The currency code should be exist on <a href="http://openexchangerates.org/latest.json">this list of codes</a>.</li>
               <li><em>No uptime guarantees are made</em>. From my testing, Mt. Gox API will often fail, thus failing ours as well.</li>
+              <li>Weighted BTC rates are up to 16 minutes stale - we cache the results from <a href="http://bitcoincharts.com/about/markets-api/">BitcoinCharts API</a>, because they only allows one query every 15 minutes.</p>
           </ul>
       </div>
     </div>
