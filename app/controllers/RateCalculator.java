@@ -48,22 +48,28 @@ public class RateCalculator {
         return new Job<Map<String, BigDecimal>>() {
             @Override
             public Map<String, BigDecimal> doJobWithResult() throws Exception {
-                Map<String, BigDecimal> rates = new LinkedHashMap<String, BigDecimal>();
-                if (USE_MOCKS) {
-                    rates.put("USD", new BigDecimal(1));
-                    rates.put("ILS", new BigDecimal(4));
+                return CacheUtils.getCachedOrFresh("fiatRate", Period.minutes(2), new Callable<Map<String, BigDecimal>>() {
+                    @Override
+                    public Map<String, BigDecimal> call() throws Exception {
+                        Map<String, BigDecimal> rates = new LinkedHashMap<String, BigDecimal>();
+                        if (USE_MOCKS) {
+                            rates.put("USD", new BigDecimal(1));
+                            rates.put("ILS", new BigDecimal(4));
 
-                    return rates;
-                }
-                F.Promise<WS.HttpResponse> response1 = WS.url(OPEN_EXCHANGE_API).getAsync();
+                            return rates;
+                        }
 
-                WS.HttpResponse httpResponse = response1.get();
-                for (Map.Entry<String, JsonElement> entry : ((JsonObject) httpResponse.getJson()).getAsJsonObject("rates").entrySet()) {
-                    rates.put(entry.getKey(), entry.getValue().getAsBigDecimal());
-                }
 
-                rates = MapUtil.sortByKey(rates);
-                return rates;
+                        F.Promise<WS.HttpResponse> response1 = WS.url(OPEN_EXCHANGE_API).getAsync();
+                        WS.HttpResponse httpResponse = response1.get();
+                        for (Map.Entry<String, JsonElement> entry : ((JsonObject) httpResponse.getJson()).getAsJsonObject("rates").entrySet()) {
+                            rates.put(entry.getKey(), entry.getValue().getAsBigDecimal());
+                        }
+
+                        rates = MapUtil.sortByKey(rates);
+                        return rates;
+                    }
+                });
             }
         }.now();
     }
@@ -86,7 +92,7 @@ public class RateCalculator {
                                 public BTCWeightedRates call() throws Exception {
                                     F.Promise<WS.HttpResponse> response = WS.url(BITCOIN_CHARTS_WEIGHTED_PRICE_API).getAsync();
                                     WS.HttpResponse httpResponse = response.get();
-                                    return parseBTCWeighted(((JsonObject)(((JsonObject) httpResponse.getJson()).get("USD"))));
+                                    return parseBTCWeighted(((JsonObject) (((JsonObject) httpResponse.getJson()).get("USD"))));
                                 }
                             });
 
@@ -113,15 +119,20 @@ public class RateCalculator {
         return new Job<BigDecimal>() {
             @Override
             public BigDecimal doJobWithResult() throws Exception {
-                if (USE_MOCKS) {
-                    return new BigDecimal(5);
-                }
+                return CacheUtils.getCachedOrFresh("btcRate", Period.minutes(2), new Callable<BigDecimal>() {
+                    @Override
+                    public BigDecimal call() throws Exception {
+                        if (USE_MOCKS) {
+                            return new BigDecimal(5);
+                        }
 
-                F.Promise<WS.HttpResponse> async = WS.url(MTGOX_API).getAsync();
+                        F.Promise<WS.HttpResponse> async = WS.url(MTGOX_API).getAsync();
 
-                JsonObject json = async.get().getJson().getAsJsonObject();
-                JsonObject jsonObje = json.get("return").getAsJsonObject().get("avg").getAsJsonObject();
-                return jsonObje.get("value").getAsBigDecimal();
+                        JsonObject json = async.get().getJson().getAsJsonObject();
+                        JsonObject jsonObje = json.get("return").getAsJsonObject().get("avg").getAsJsonObject();
+                        return jsonObje.get("value").getAsBigDecimal();
+                    }
+                });
             }
         }.now();
     }
