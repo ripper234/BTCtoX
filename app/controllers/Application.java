@@ -1,6 +1,7 @@
 package controllers;
 
 import play.libs.F;
+import play.mvc.Before;
 import play.mvc.Controller;
 
 import java.math.BigDecimal;
@@ -8,6 +9,12 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class Application extends Controller {
+
+    @Before
+    public static void before() {
+        // Let's keep the cache warm
+        RateCalculator.warmCaches();
+    }
 
     public static void index() {
         render();

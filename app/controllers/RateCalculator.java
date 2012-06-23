@@ -30,14 +30,25 @@ public class RateCalculator {
 
     private final static boolean USE_MOCKS = false;
 
-    static F.Promise<F.Tuple<Map<String, BigDecimal>, BigDecimal>> gerRates() throws ExecutionException, InterruptedException {
+    public static void warmCaches() {
+        new Job<Void>(){
+            @Override
+            public void doJob() throws Exception {
+                getBtcRate();
+                getBTCRateWeighted(WeightPeriod.OneDay);
+                getFiatRate();
+            }
+        }.now();
+    }
+
+    public static F.Promise<F.Tuple<Map<String, BigDecimal>, BigDecimal>> gerRates() throws ExecutionException, InterruptedException {
         F.Promise<Map<String, BigDecimal>> ratesPromise = getFiatRate();
         F.Promise<BigDecimal> btcRatePromise = getBtcRate();
 
         return F.Promise.wait2(ratesPromise, btcRatePromise);
     }
 
-    static F.Promise<F.Tuple<Map<String, BigDecimal>, BigDecimal>> gerRatesWeighted(WeightPeriod period) throws ExecutionException, InterruptedException {
+    public static F.Promise<F.Tuple<Map<String, BigDecimal>, BigDecimal>> gerRatesWeighted(WeightPeriod period) throws ExecutionException, InterruptedException {
         F.Promise<Map<String, BigDecimal>> ratesPromise = getFiatRate();
         F.Promise<BigDecimal> btcRatePromise = getBTCRateWeighted(period);
 
