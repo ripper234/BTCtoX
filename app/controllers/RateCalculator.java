@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.btctox.MapUtil;
 import org.joda.time.Period;
 import org.playutils.CacheUtils;
+import play.Play;
 import play.jobs.Job;
 import play.libs.F;
 import play.libs.WS;
@@ -24,6 +25,7 @@ public class RateCalculator {
     private static final String BITCOIN_CHARTS_WEIGHTED_PRICE_API = "http://bitcoincharts.com/t/weighted_prices.json";
     private static final String OPEN_EXCHANGE_API = "http://openexchangerates.org/latest.json";
     private static final String MTGOX_API = "https://mtgox.com/api/1/BTCUSD/ticker";
+    private static final String OPEN_EXCHANGE_API_KEY = Play.configuration.getProperty("openExchangeAppId");
 
     private RateCalculator() {
     }
@@ -71,9 +73,21 @@ public class RateCalculator {
                         }
 
 
-                        F.Promise<WS.HttpResponse> response1 = WS.url(OPEN_EXCHANGE_API).getAsync();
+                        F.Promise<WS.HttpResponse> response1 =
+                            CacheUtils.getCachedOrFresh("openExchangeResponse", Period.hours(1), new Callable<F.Promise<WS.HttpResponse>>() {
+                                @Override
+                                public F.Promise<WS.HttpResponse> call() throws Exception {
+                                    return WS.url(OPEN_EXCHANGE_API).setParameter("app_id", OPEN_EXCHANGE_API_KEY).getAsync();
+                                }
+                            });
+
                         WS.HttpResponse httpResponse = response1.get();
-                        for (Map.Entry<String, JsonElement> entry : ((JsonObject) httpResponse.getJson()).getAsJsonObject("rates").entrySet()) {
+                        JsonObject json = (JsonObject) httpResponse.getJson();
+                        JsonObject jsonRates = json.getAsJsonObject("rates");
+                        if (jsonRates == null) {
+                            throw new RuntimeException("Failed to get rates from OpenExchange API");
+                        }
+                        for (Map.Entry<String, JsonElement> entry : jsonRates.entrySet()) {
                             rates.put(entry.getKey(), entry.getValue().getAsBigDecimal());
                         }
 
